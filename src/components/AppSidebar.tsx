@@ -1,6 +1,6 @@
-import { BookOpen, Brain, Gamepad2, User, Home } from "lucide-react";
+import { BookOpen, Brain, Gamepad2, User, Home, Users, Settings, BarChart3 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
+import { useUserRole, type AppRole } from "@/hooks/useUserRole";
 import {
   Sidebar,
   SidebarContent,
@@ -13,18 +13,44 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const items = [
-  { title: "Главная", url: "/", icon: Home },
-  { title: "ИИ-Тьютор", url: "/tutor", icon: Brain },
-  { title: "Конспекты", url: "/notes", icon: BookOpen },
-  { title: "Задачи", url: "/tasks", icon: Gamepad2 },
-  { title: "Профиль", url: "/profile", icon: User },
-];
+type MenuItem = { title: string; url: string; icon: React.ComponentType<{ className?: string }> };
+
+const menusByRole: Record<AppRole, MenuItem[]> = {
+  student: [
+    { title: "Главная", url: "/", icon: Home },
+    { title: "ИИ-Тьютор", url: "/tutor", icon: Brain },
+    { title: "Конспекты", url: "/notes", icon: BookOpen },
+    { title: "Задачи", url: "/tasks", icon: Gamepad2 },
+    { title: "Профиль", url: "/profile", icon: User },
+  ],
+  teacher: [
+    { title: "Главная", url: "/", icon: Home },
+    { title: "ИИ-Тьютор", url: "/tutor", icon: Brain },
+    { title: "Конспекты", url: "/notes", icon: BookOpen },
+    { title: "Задачи", url: "/tasks", icon: Gamepad2 },
+    { title: "Ученики", url: "/students", icon: Users },
+    { title: "Профиль", url: "/profile", icon: User },
+  ],
+  parent: [
+    { title: "Главная", url: "/", icon: Home },
+    { title: "Прогресс", url: "/progress", icon: BarChart3 },
+    { title: "Профиль", url: "/profile", icon: User },
+  ],
+  admin: [
+    { title: "Главная", url: "/", icon: Home },
+    { title: "Пользователи", url: "/admin/users", icon: Users },
+    { title: "Статистика", url: "/admin/stats", icon: BarChart3 },
+    { title: "Настройки", url: "/admin/settings", icon: Settings },
+    { title: "Профиль", url: "/profile", icon: User },
+  ],
+};
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const location = useLocation();
+  const { role } = useUserRole();
+
+  const items = menusByRole[role ?? "student"];
 
   return (
     <Sidebar collapsible="icon">
